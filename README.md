@@ -1,4 +1,3 @@
-
 # 🛠️ Projeto DevSecOps – Infraestrutura Manual AWS
 
 Este projeto demonstra a construção de uma infraestrutura básica na AWS **sem uso de IaC**, feita manualmente pelo console. O foco é o aprendizado de redes, segurança, web server e monitoramento com boas práticas de documentação e versionamento.
@@ -15,7 +14,7 @@ A VPC foi criada manualmente no console AWS utilizando a opção **"VPC only"** 
 - **Tag:** `Name = devsecops-vpc`  
 
 📸 **Imagem de referência:**  
-`/images/capturas/1.png` – Tela de criação da VPC no console AWS.
+`images/capturas/1.png` – Tela de criação da VPC no console AWS.
 
 ---
 
@@ -31,7 +30,7 @@ A primeira sub-rede pública foi criada manualmente no console AWS:
 - **Tag:** `Name = public-subnet-a`  
 
 📸 **Imagem de referência:**  
-`/images/capturas/2.png` – Tela de criação da sub-rede pública A.
+`images/capturas/2.png` – Tela de criação da sub-rede pública A.
 
 > Será usada futuramente para hospedar a EC2 acessível.
 
@@ -46,7 +45,7 @@ Usamos **“Add new subnet”** para criar em sequência:
 - **private-subnet-b** (us-east-2b | 10.0.0.192/26)  
 
 📸 **Imagem de referência:**  
-`/images/capturas/3.png` – Visão geral das 4 sub-redes criadas.
+`images/capturas/3.png` – Visão geral das 4 sub-redes criadas.
 
 ---
 
@@ -56,11 +55,11 @@ Usamos **“Add new subnet”** para criar em sequência:
 
 1. **Create Internet Gateway**  
    - Nome: `devsecops-igw`  
-   - Print: `/images/capturas/4.png`  
+   - Print: `images/capturas/4.png`  
 
 2. **Attach to VPC**  
    - Selecione `devsecops-igw` → **Actions** → **Attach to VPC** → `devsecops-vpc`  
-   - Print: `/images/capturas/5.png`
+   - Print: `images/capturas/5.png`
 
 ---
 
@@ -69,18 +68,18 @@ Usamos **“Add new subnet”** para criar em sequência:
 1. **Create Route Table**  
    - Nome: `public-route-table`  
    - VPC: `devsecops-vpc`  
-   - Print: `/images/capturas/6.png`
+   - Print: `images/capturas/6.png`
 
 2. **Adicionar rota 0.0.0.0/0 → IGW**  
    - **Edit routes** → **Add route**  
      - Destination: `0.0.0.0/0`  
      - Target: `devsecops-igw`  
-   - Print: `/images/capturas/7.png`
+   - Print: `images/capturas/7.png`
 
 3. **Associar sub-redes públicas**  
    - **Edit subnet associations** → marque `public-subnet-a` e `public-subnet-b`  
-   - Print (desassociando primeiro as privadas): `/images/capturas/8.png`  
-   - Print (associando as públicas): `/images/capturas/9.png`
+   - Print (desassociando primeiro as privadas): `images/capturas/8.png`  
+   - Print (associando as públicas): `images/capturas/9.png`
 
 ---
 
@@ -96,7 +95,7 @@ Usamos **“Add new subnet”** para criar em sequência:
   | CostCenter  | C092000024      | Instances, Volumes    |
   | Project     | PB - JUN - 2025 | Instances, Volumes    |
 
-📸 `/images/capturas/10.png`
+📸 `images/capturas/10.png`
 
 ---
 
@@ -104,7 +103,7 @@ Usamos **“Add new subnet”** para criar em sequência:
 
 - **Amazon Linux 2023** (kernel-6.1, HVM, 64-bit)  
 - **AMI ID:** `ami-0c803b171269e2d72`  
-- Print: `/images/capturas/11.png`
+- Print: `images/capturas/11.png`
 
 ---
 
@@ -112,7 +111,7 @@ Usamos **“Add new subnet”** para criar em sequência:
 
 - **Instance type:** `t2.micro` (Free Tier)  
 - **Key pair:** `DevSecOps-web-key` (RSA/.pem)  
-- Print: `/images/capturas/12.png`
+- Print: `images/capturas/12.png`
 
 ---
 
@@ -125,14 +124,14 @@ Usamos **“Add new subnet”** para criar em sequência:
   - **Inbound:**
     - SSH (22) → **My IP**  
     - HTTP (80) → **Anywhere (0.0.0.0/0)**  
-- Print: `/images/capturas/13.png`
+- Print: `images/capturas/13.png`
 
 ---
 
 ### 🔹 4.5 Configure Storage
 
 - **Root volume (gp3):** 8 GiB, 3 000 IOPS, Delete on Termination ✔️  
-- Print: `/images/capturas/14.png`
+- Print: `images/capturas/14.png`
 
 ---
 
@@ -141,7 +140,7 @@ Usamos **“Add new subnet”** para criar em sequência:
 #### Metadata
 - **Metadata version:** V2 only (token required)  
 - **Metadata accessible:** Enabled  
-- Print: `/images/capturas/15.png`
+- Print: `images/capturas/15.png`
 
 #### User Data
 ```bash
@@ -153,4 +152,3 @@ systemctl enable nginx
 systemctl start nginx
 echo "<h1>Hello from DevSecOps EC2 with NGINX</h1>" \
   > /usr/share/nginx/html/index.html
-
