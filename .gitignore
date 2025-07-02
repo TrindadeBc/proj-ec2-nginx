@@ -1,0 +1,7 @@
+# Ignorar variáveis de ambiente
+.env
+
+# Ignorar chaves SSH/PEM
+*.pem
+
+# Qualquer outro arquivo sensível
