@@ -1,8 +1,145 @@
-# 🛠️ Projeto DevSecOps – Infraestrutura Manual AWS
+🛠️ Projeto DevSecOps – Infraestrutura Manual AWS
 
-Este projeto demonstra a construção de uma infraestrutura básica na AWS **sem uso de IaC**, feita manualmente pelo console. O foco é o aprendizado de redes, segurança, web server e monitoramento com boas práticas de documentação e versionamento.
+Este pr
+
+ecOps – Infraestrutura Manual AWS
+
+Este repositório documenta, passo a passo via console AWS, a criação de:
+
+1. VPC + sub-redes (públicas e privadas)  
+2. Internet Gateway + Route Tables  
+3. Instância EC2 com NGINX  
+
+Com foco em redes, tags, segurança e boas práticas de documentação.
 
 ---
+
+## Etapa 1: Criação da VPC
+
+A VPC foi criada em **VPC only** para controlar manualmente todos os componentes da rede.
+
+- **CIDR IPv4:** `10.0.0.0/24`  
+- **CIDR IPv6:** Não utilizado  
+- **Tenancy:** Default  
+- **Tag:** `Name = devsecops-vpc`
+
+![1](images/capturas/1.png)
+
+---
+
+## Etapa 2: Criação das Sub-redes
+
+### 2.1 Sub-rede Pública A
+
+- **Name:** `public-subnet-a`  
+- **AZ:** `us-east-2a`  
+- **CIDR:** `10.0.0.0/26` (64 IPs)  
+- **Tag:** `Name = public-subnet-a`
+
+![2](images/capturas/2.png)
+
+### 2.2 Demais Sub-redes (públicas e privadas)
+
+Todas as quatro sub-redes criadas seguem o mesmo padrão de nomenclatura e bloco CIDR:
+
+- **public-subnet-b:** `10.0.0.64/26`  
+- **private-subnet-a:** `10.0.0.128/26`  
+- **private-subnet-b:** `10.0.0.192/26`
+
+![3](images/capturas/3.png)
+
+---
+
+## Etapa 3: Internet Gateway & Route Tables
+
+### 3.1 Criar e Anexar Internet Gateway
+
+1. **Create Internet Gateway**  
+   - **Name tag:** `devsecops-igw`  
+   ![4](images/capturas/4.png)
+
+2. **Attach to VPC**  
+   - Actions → Attach to VPC → `devsecops-vpc`  
+   ![5](images/capturas/5.png)
+
+### 3.2 Criar Route Table Pública
+
+1. **Create Route Table**  
+   - **Name:** `public-route-table`  
+   - **VPC:** `devsecops-vpc`  
+   ![6](images/capturas/6.png)
+
+2. **Adicionar rota 0.0.0.0/0 → IGW**  
+   - Edit routes → Add route  
+     - **Destination:** `0.0.0.0/0`  
+     - **Target:** `devsecops-igw`  
+   ![7](images/capturas/7.png)
+
+3. **Associar sub-redes públicas**  
+   - Edit subnet associations → marcar `public-subnet-a` e `public-subnet-b`  
+   ![8](images/capturas/8.png)
+
+---
+
+## Etapa 4: Instância EC2 com NGINX
+
+### 4.1 Name, Tags e AMI
+
+- **Name:** `PB - JUN - 2025`  
+- **CostCenter:** `C092000024`  
+- **Project:** `PB - JUN - 2025`  
+  ![16](images/capturas/16.png)
+
+- **AMI:** Amazon Linux 2023  
+  - **AMI ID:** `ami-0c803b171269e2d72`  
+  - **Username:** `ec2-user`  
+  ![17](images/capturas/17.png)
+
+### 4.2 Instance Type & Key Pair
+
+- **Instance type:** `t2.micro` (1 vCPU, 1 GiB – free tier)  
+- **Key pair:** `DevSecOps-web-key` (RSA / .pem)  
+
+![10](images/capturas/10.png)  
+![11](images/capturas/11.png)
+
+### 4.3 Network settings
+
+- **VPC:** `devsecops-vpc`  
+- **Subnet:** `public-subnet-a` (permite IP público)  
+- **Auto-assign Public IP:** Enable  
+- **Security group:** `devsecops-web-SG`  
+  - **SSH (22):** Source = *My IP*  
+  - **HTTP (80):** Source = *Anywhere*  
+
+![12](images/capturas/12.png)
+
+### 4.4 Storage (Volumes)
+
+- **Root volume:** 8 GiB, gp3 (General purpose SSD, 3 000 IOPS)  
+- Free tier eligible (até 30 GiB)
+
+![13](images/capturas/13.png)
+
+### 4.5 Advanced Details
+
+- **Metadata accessible:** Enabled  
+- **Metadata version:** V2 only (token required)  
+- **Metadata response hop limit:** 2  
+
+![14](images/capturas/14.png)
+
+#### User Data (para provisionar NGINX)
+
+```bash
+#!/bin/bash
+yum update -y
+amazon-linux-extras enable nginx1
+yum install -y nginx
+systemctl enable nginx
+systemctl start nginx
+
+echo "<h1>Hello from DevSecOps EC2 with NGINX</h1>" > /usr/share/nginx/html/index.html
 
 ## Etapa 1: Criação da VPC
 
@@ -149,3 +286,4 @@ systemctl enable nginx
 systemctl start nginx
 echo "<h1>Hello from DevSecOps EC2 with NGINX</h1>" \
   > /usr/share/nginx/html/index.html
+
