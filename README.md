@@ -14,7 +14,7 @@ A VPC foi criada manualmente no console AWS utilizando a opção **"VPC only"** 
 - **Tag:** `Name = devsecops-vpc`  
 
 📸 **Imagem de referência:**  
-`images/capturas/1.png` – Tela de criação da VPC no console AWS.
+![Tela de criação da VPC](images/capturas/1.png)
 
 ---
 
@@ -22,30 +22,28 @@ A VPC foi criada manualmente no console AWS utilizando a opção **"VPC only"** 
 
 ### 🔹 Sub-rede Pública A
 
-A primeira sub-rede pública foi criada manualmente no console AWS:
+A primeira sub-rede pública foi criada manualmente:
 
 - **Nome:** `public-subnet-a`  
 - **Zona de disponibilidade:** `us-east-2a`  
-- **Bloco CIDR IPv4:** `10.0.0.0/26` (64 IPs disponíveis)  
+- **Bloco CIDR IPv4:** `10.0.0.0/26` (64 IPs)  
 - **Tag:** `Name = public-subnet-a`  
 
 📸 **Imagem de referência:**  
-`images/capturas/2.png` – Tela de criação da sub-rede pública A.
-
-> Será usada futuramente para hospedar a EC2 acessível.
+![Criação da sub-rede pública A](images/capturas/2.png)
 
 ---
 
 ### 🔹 Demais sub-redes
 
-Usamos **“Add new subnet”** para criar em sequência:
+Usamos “Add new subnet” para criar em sequência:
 
-- **public-subnet-b** (us-east-2b | 10.0.0.64/26)  
-- **private-subnet-a** (us-east-2a | 10.0.0.128/26)  
-- **private-subnet-b** (us-east-2b | 10.0.0.192/26)  
+- `public-subnet-b` (us-east-2b | 10.0.0.64/26)  
+- `private-subnet-a` (us-east-2a | 10.0.0.128/26)  
+- `private-subnet-b` (us-east-2b | 10.0.0.192/26)  
 
-📸 **Imagem de referência:**  
-`images/capturas/3.png` – Visão geral das 4 sub-redes criadas.
+📸 **Visão geral das 4 sub-redes:**  
+![Visão geral das sub-redes](images/capturas/3.png)
 
 ---
 
@@ -55,11 +53,11 @@ Usamos **“Add new subnet”** para criar em sequência:
 
 1. **Create Internet Gateway**  
    - Nome: `devsecops-igw`  
-   - Print: `images/capturas/4.png`  
+   - ![Create Internet Gateway](images/capturas/4.png)
 
 2. **Attach to VPC**  
    - Selecione `devsecops-igw` → **Actions** → **Attach to VPC** → `devsecops-vpc`  
-   - Print: `images/capturas/5.png`
+   - ![Attach IGW à VPC](images/capturas/5.png)
 
 ---
 
@@ -68,22 +66,21 @@ Usamos **“Add new subnet”** para criar em sequência:
 1. **Create Route Table**  
    - Nome: `public-route-table`  
    - VPC: `devsecops-vpc`  
-   - Print: `images/capturas/6.png`
+   - ![Create Route Table](images/capturas/6.png)
 
 2. **Adicionar rota 0.0.0.0/0 → IGW**  
    - **Edit routes** → **Add route**  
      - Destination: `0.0.0.0/0`  
      - Target: `devsecops-igw`  
-   - Print: `images/capturas/7.png`
+   - ![Adicionar rota à tabela pública](images/capturas/7.png)
 
 3. **Associar sub-redes públicas**  
-   - **Edit subnet associations** → marque `public-subnet-a` e `public-subnet-b`  
-   - Print (desassociando primeiro as privadas): `images/capturas/8.png`  
-   - Print (associando as públicas): `images/capturas/9.png`
+   - **Edit subnet associations** → selecione `public-subnet-a` e `public-subnet-b`  
+   - ![Selecionar sub-redes públicas](images/capturas/9.png)
 
 ---
 
-## Etapa 4: Provisionamento da Instância EC2 com NGINX
+## Etapa 4: Provisionamento da EC2 com NGINX
 
 ### 🔹 4.1 Name and Tags
 
@@ -95,15 +92,16 @@ Usamos **“Add new subnet”** para criar em sequência:
   | CostCenter  | C092000024      | Instances, Volumes    |
   | Project     | PB - JUN - 2025 | Instances, Volumes    |
 
-📸 `images/capturas/10.png`
+📸 **Configuração de Tags:**  
+![Configuração de tags](images/capturas/10.png)
 
 ---
 
 ### 🔹 4.2 Seleção da AMI
 
-- **Amazon Linux 2023** (kernel-6.1, HVM, 64-bit)  
+- **AMI:** Amazon Linux 2023 (kernel-6.1, HVM, 64-bit)  
 - **AMI ID:** `ami-0c803b171269e2d72`  
-- Print: `images/capturas/11.png`
+- ![Seleção da AMI Amazon Linux 2023](images/capturas/11.png)
 
 ---
 
@@ -111,7 +109,7 @@ Usamos **“Add new subnet”** para criar em sequência:
 
 - **Instance type:** `t2.micro` (Free Tier)  
 - **Key pair:** `DevSecOps-web-key` (RSA/.pem)  
-- Print: `images/capturas/12.png`
+- ![Instance Type & Key Pair](images/capturas/12.png)
 
 ---
 
@@ -119,28 +117,27 @@ Usamos **“Add new subnet”** para criar em sequência:
 
 - **VPC:** `devsecops-vpc`  
 - **Subnet:** `public-subnet-a`  
-- **Auto-assign public IP:** **Enable**  
-- **Security group:** Criado novo `devsecops-web-SG`  
-  - **Inbound:**
-    - SSH (22) → **My IP**  
-    - HTTP (80) → **Anywhere (0.0.0.0/0)**  
-- Print: `images/capturas/13.png`
+- **Auto-assign public IP:** Enabled  
+- **Security group:** `devsecops-web-SG`  
+  - SSH (22) → My IP  
+  - HTTP (80) → Anywhere (0.0.0.0/0)  
+- ![Network Settings & SG](images/capturas/13.png)
 
 ---
 
 ### 🔹 4.5 Configure Storage
 
-- **Root volume (gp3):** 8 GiB, 3 000 IOPS, Delete on Termination ✔️  
-- Print: `images/capturas/14.png`
+- **Root volume (gp3):** 8 GiB, 3 000 IOPS, Delete on Termination  
+- ![Configuração de Storage](images/capturas/14.png)
 
 ---
 
 ### 🔹 4.6 Advanced Details
 
 #### Metadata
-- **Metadata version:** V2 only (token required)  
 - **Metadata accessible:** Enabled  
-- Print: `images/capturas/15.png`
+- **Metadata version:** V2 only (token required)  
+- ![Metadata settings](images/capturas/15.png)
 
 #### User Data
 ```bash
